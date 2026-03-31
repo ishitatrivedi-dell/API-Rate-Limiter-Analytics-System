@@ -37,7 +37,8 @@ public class RateLimiterFilter extends OncePerRequestFilter {
         "/h2-console",
         "/actuator",
         "/error",
-        "/favicon.ico"
+        "/favicon.ico",
+        "/auth"
     };
 
     @Override
@@ -46,8 +47,8 @@ public class RateLimiterFilter extends OncePerRequestFilter {
         
         String path = request.getRequestURI();
         
-        // Skip rate limiting for excluded paths
-        if (shouldSkipRateLimiting(path)) {
+        // Skip rate limiting for excluded paths and OPTIONS requests
+        if ("OPTIONS".equalsIgnoreCase(request.getMethod()) || shouldSkipRateLimiting(path)) {
             filterChain.doFilter(request, response);
             return;
         }
