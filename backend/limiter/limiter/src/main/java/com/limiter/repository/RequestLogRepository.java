@@ -26,4 +26,38 @@ public interface RequestLogRepository extends JpaRepository<RequestLog, Long> {
     
     @Query("SELECT r FROM RequestLog r ORDER BY r.timestamp DESC")
     List<RequestLog> findAllOrderedByTimestampDesc();
+    
+    // Analytics queries
+    @Query("SELECT COUNT(r) FROM RequestLog r WHERE r.userId = :userId")
+    Long countByUserId(@Param("userId") Long userId);
+    
+    @Query("SELECT COUNT(r) FROM RequestLog r WHERE r.endpoint = :endpoint")
+    Long countByEndpoint(@Param("endpoint") String endpoint);
+    
+    @Query("SELECT COUNT(r) FROM RequestLog r WHERE r.status >= 200 AND r.status < 300")
+    Long countSuccessRequests();
+    
+    @Query("SELECT COUNT(r) FROM RequestLog r WHERE r.status >= 400")
+    Long countFailedRequests();
+    
+    @Query("SELECT COUNT(r) FROM RequestLog r WHERE r.userId = :userId AND r.status >= 200 AND r.status < 300")
+    Long countSuccessRequestsByUser(@Param("userId") Long userId);
+    
+    @Query("SELECT COUNT(r) FROM RequestLog r WHERE r.userId = :userId AND r.status >= 400")
+    Long countFailedRequestsByUser(@Param("userId") Long userId);
+    
+    @Query("SELECT r.endpoint, COUNT(r) FROM RequestLog r GROUP BY r.endpoint ORDER BY COUNT(r) DESC")
+    List<Object[]> countRequestsByEndpoint();
+    
+    @Query("SELECT r.userId, COUNT(r) FROM RequestLog r WHERE r.userId IS NOT NULL GROUP BY r.userId ORDER BY COUNT(r) DESC")
+    List<Object[]> countRequestsByUser();
+    
+    @Query("SELECT r.method, COUNT(r) FROM RequestLog r GROUP BY r.method ORDER BY COUNT(r) DESC")
+    List<Object[]> countRequestsByMethod();
+    
+    @Query("SELECT COUNT(r) FROM RequestLog r WHERE r.timestamp >= :since")
+    Long countSince(@Param("since") LocalDateTime since);
+    
+    @Query("SELECT r.endpoint, COUNT(r) FROM RequestLog r WHERE r.timestamp >= :since GROUP BY r.endpoint ORDER BY COUNT(r) DESC")
+    List<Object[]> countRequestsByEndpointSince(@Param("since") LocalDateTime since);
 }
